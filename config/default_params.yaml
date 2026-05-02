@@ -7,7 +7,7 @@ min_points_per_voxel: 3   # minimum points to create voxel
 
 # Segmentation parameters
 enable_semantic: true     # enable/disable semantic labeling
-model_path: "models/mobilenet_v3_small.onnx"
+model_path: "models/segformer-b0-finetuned-ade-512-512/onnx/model.onnx"
 confidence_threshold: 0.5  # minimum confidence for labels
 
 # Dynamic object filtering

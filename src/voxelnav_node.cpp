@@ -33,7 +33,7 @@ public:
         declare_parameter("enable_semantic", true);
         declare_parameter("publish_rate", 10.0);
         declare_parameter("frame_id", "map");
-        declare_parameter("model_path", "models/mobilenet_v3_small.onnx");
+        declare_parameter("model_path", "models/segformer-b0-finetuned-ade-512-512/onnx/model_fp16.onnx");
 
         voxel_size_ = get_parameter("voxel_size").as_double();
         max_range_ = get_parameter("max_range").as_double();
@@ -52,6 +52,13 @@ public:
                 enable_semantic_ = false;
             }
         }
+
+        RCLCPP_INFO(get_logger(),
+            "Segmenter mode: %s",
+            segmenter_->hasRealModel() ? "real ONNX model" : "deterministic fallback");
+        RCLCPP_INFO(get_logger(),
+            "SegFormer input: %dx%d, classes: %d",
+            segmenter_->getConfig().input_width, segmenter_->getConfig().input_height, segmenter_->getConfig().num_classes);
 
         cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
             "/scan", rclcpp::SensorDataQoS(),
@@ -99,6 +106,8 @@ private:
         SegmenterConfig config;
         config.model_path = model_path_;
         config.confidence_threshold = 0.5f;
+        config.input_width = 512;
+        config.input_height = 512;
         return config;
     }
 

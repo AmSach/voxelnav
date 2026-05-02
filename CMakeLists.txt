@@ -22,6 +22,10 @@ find_package(PCL REQUIRED COMPONENTS common io)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+set(ONNXRUNTIME_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/onnxruntime/pkg/onnxruntime-linux-x64-1.25.1)
+include_directories(${ONNXRUNTIME_ROOT}/include)
+link_directories(${ONNXRUNTIME_ROOT}/lib)
+
 include_directories(
   include
   ${OpenCV_INCLUDE_DIRS}
@@ -48,6 +52,10 @@ target_link_libraries(voxelnav_voxelizer
 add_library(voxelnav_segmenter SHARED
   src/segmenter.cpp
 )
+target_link_libraries(voxelnav_segmenter
+  onnxruntime
+  ${OpenCV_LIBRARIES}
+)
 ament_target_dependencies(voxelnav_segmenter
   rclcpp sensor_msgs OpenCV
 )
@@ -60,6 +68,7 @@ target_link_libraries(voxelnav_node
   voxelnav_voxelizer
   voxelnav_segmenter
   ${PCL_LIBRARIES}
+  onnxruntime
 )
 ament_target_dependencies(voxelnav_node
   rclcpp rclcpp_components sensor_msgs geometry_msgs message_filters cv_bridge pcl_conversions

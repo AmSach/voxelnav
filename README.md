@@ -1,6 +1,6 @@
 # VoxelNav — Real-time Semantic Voxel Mapping for ROS2
 
-VoxelNav turns 3D sensor data into a voxel grid and can attach semantic labels to those voxels. The point of this repo is now simple: show the real working core, clearly mark the unfinished parts, and give you a test you can run right away.
+VoxelNav turns 3D sensor data into a voxel grid and can attach semantic labels to those voxels. The point of this repo is now simple: show the real working core, include a real ONNX asset, clearly mark the unfinished parts, and give you a test you can run right away.
 
 ## Read this first
 This is a **strong prototype**. It is **not yet field deployed**.
@@ -11,15 +11,17 @@ You can use it to demonstrate voxel mapping, semantic labeling, ranking, pruning
 - Voxel hashing and merging from 3D points
 - Signed voxel coordinates in all 3 axes
 - Semantic labels and confidence values
-- Deterministic segmentation fallback when a real ONNX model is missing
+- A real SegFormer ONNX model asset is packaged in the repo
+- Real inference path via OpenCV DNN when the runtime can execute the model
+- Deterministic fallback segmentation when the ONNX path cannot be loaded or executed
 - Nav2 costmap plugin scaffold
 - Core smoke test that exercises the main library paths
 - Extra map-intelligence helpers like label histograms, top-confidence voxels, and stale-voxel pruning
 
 ## What is still a demo or scaffold
-- The ONNX segmenter is still a mock fallback, not a real trained model pipeline
 - The ROS2 node depends on a full ROS2 + PCL + OpenCV environment
 - The Nav2 plugin needs a real robot setup to validate end-to-end behavior
+- Field deployment still needs robot-side validation and performance tuning
 
 ## Quick verification
 If you just want to check that the core logic works, run:

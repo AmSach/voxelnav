@@ -20,6 +20,9 @@ def main() -> int:
 
     opencv_cflags = subprocess.check_output(["pkg-config", "--cflags", "opencv4"], text=True).strip().split()
     opencv_libs = subprocess.check_output(["pkg-config", "--libs", "opencv4"], text=True).strip().split()
+    ort_root = ROOT / "third_party/onnxruntime/pkg/onnxruntime-linux-x64-1.25.1"
+    ort_include = str(ort_root / "include")
+    ort_lib = str(ort_root / "lib")
 
     cmd = [
         "g++",
@@ -27,6 +30,7 @@ def main() -> int:
         "-O2",
         "-Iinclude",
         "-I/usr/include/eigen3",
+        "-I" + ort_include,
         *opencv_cflags,
         "test/core_smoke.cpp",
         "src/voxelizer.cpp",
@@ -34,6 +38,9 @@ def main() -> int:
         "-o",
         str(SMOKE_BIN),
         *opencv_libs,
+        "-L" + ort_lib,
+        "-lonnxruntime",
+        "-Wl,-rpath," + ort_lib,
     ]
     run(cmd)
     run([str(SMOKE_BIN)])

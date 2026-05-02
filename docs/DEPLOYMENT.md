@@ -3,25 +3,26 @@
 ## Short answer
 No: this repository is **not yet field deployable** in the strict sense.
 
-It is a strong research/demo prototype with real core data structures and a test harness, but field deployment requires robot-side validation, a real segmentation model, and end-to-end ROS2 integration on the target hardware.
+It is now materially closer, though. The repo includes a real ONNX segmentation model, a deterministic fallback path, and smoke-testable core logic. What remains is robot-side validation.
 
 ## What is already useful
 - 3D voxel hashing from point clouds
 - Signed voxel coordinates in all axes
 - Semantic label storage and confidence tracking
+- Real ONNX-compatible segmentation model file in `models/segformer-b0-finetuned-ade-512-512/onnx/model_fp16.onnx`
 - Deterministic fallback segmentation mode
 - Nav2 costmap plugin scaffold
 - Smoke-testable core logic
 - Voxel pruning, ranking, and histogram helpers
 
 ## What is still missing for real field deployment
-- A validated ONNX model that matches the claimed semantic classes
-- Real robot integration tests in ROS2
+- ROS2 build and runtime verification on the target robot
 - TF / frame correctness checks on the target robot
 - Playback tests against recorded sensor bags
 - Runtime monitoring, watchdogs, and lifecycle management
 - Performance validation on the actual target CPU/GPU
 - Long-run stability testing under sensor noise, dropouts, and memory pressure
+- Semantic accuracy validation of the model on the robot's environment
 
 ## Recommended deployment path
 1. **Simulation / bag replay**
@@ -34,8 +35,8 @@ It is a strong research/demo prototype with real core data structures and a test
    - Only after the map quality, latency, and stability are measured repeatedly.
 
 ## Honest marketing position
-You can describe VoxelNav as:
-- a **ROS2 semantic voxel mapping prototype**
+You can now describe VoxelNav as:
+- a **ROS2 semantic voxel mapping prototype with a real ONNX model asset**
 - a **navigation-oriented voxel mapping stack**
 - a **field-test candidate**
 
