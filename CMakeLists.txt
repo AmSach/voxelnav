@@ -15,6 +15,10 @@ find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(message_filters REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common io)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -22,7 +26,11 @@ include_directories(
   include
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
+  ${PCL_INCLUDE_DIRS}
 )
+
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 # Voxelizer library
 add_library(voxelnav_voxelizer SHARED
@@ -30,6 +38,10 @@ add_library(voxelnav_voxelizer SHARED
 )
 ament_target_dependencies(voxelnav_voxelizer
   rclcpp sensor_msgs Eigen3
+)
+
+target_link_libraries(voxelnav_voxelizer
+  ${PCL_LIBRARIES}
 )
 
 # Segmenter library (ONNX inference)
@@ -47,9 +59,10 @@ add_executable(voxelnav_node
 target_link_libraries(voxelnav_node
   voxelnav_voxelizer
   voxelnav_segmenter
+  ${PCL_LIBRARIES}
 )
 ament_target_dependencies(voxelnav_node
-  rclcpp rclcpp_components sensor_msgs geometry_msgs
+  rclcpp rclcpp_components sensor_msgs geometry_msgs message_filters cv_bridge pcl_conversions
 )
 
 # Nav2 costmap plugin
@@ -62,11 +75,12 @@ ament_target_dependencies(voxelnav_costmap_plugin
 pluginlib_export_plugin_description_file(nav2_costmap_2d costmap_plugins.xml)
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-  
-  add_executable(test_voxelizer test/test_voxelizer.cpp)
-  target_link_libraries(test_voxelizer voxelnav_voxelizer)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_voxelizer test/test_voxelizer.cpp)
+  if(TARGET test_voxelizer)
+    target_link_libraries(test_voxelizer voxelnav_voxelizer)
+    ament_target_dependencies(test_voxelizer Eigen3)
+  endif()
 endif()
 
 install(TARGETS
@@ -77,11 +91,19 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY
-  launch
-  config
-  models
-  DESTINATION share/${PROJECT_NAME}
-)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/models")
+  install(DIRECTORY
+    launch
+    config
+    models
+    DESTINATION share/${PROJECT_NAME}
+  )
+else()
+  install(DIRECTORY
+    launch
+    config
+    DESTINATION share/${PROJECT_NAME}
+  )
+endif()
 
 ament_package()

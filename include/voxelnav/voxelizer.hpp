@@ -14,7 +14,7 @@
 namespace voxelnav {
 
 struct Voxel {
-    uint32_t x, y, z;
+    int32_t x, y, z;
     uint16_t label;      // Semantic label (0=unknown)
     float confidence;    // Segmentation confidence
     uint32_t point_count;
@@ -27,7 +27,11 @@ struct Voxel {
 
 struct VoxelHash {
     size_t operator()(const Voxel& v) const {
-        return (v.x * 73856093) ^ (v.y * 19349663) ^ (v.z * 83492791);
+        size_t seed = 0;
+        seed ^= std::hash<int32_t>{}(v.x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= std::hash<int32_t>{}(v.y) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= std::hash<int32_t>{}(v.z) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed;
     }
 };
 
@@ -49,7 +53,7 @@ struct VoxelGridConfig {
     
     VoxelGridConfig() 
         : voxel_size(0.05f), max_range(10.0f), min_points_per_voxel(3),
-          grid_size_x(200), grid_size_y(200), grid_size_z(100),
+          grid_size_x(200), grid_size_y(200), grid_size_z(200),
           enable_dynamic_removal(true), dynamic_threshold(0.3f) {}
 };
 
@@ -80,6 +84,9 @@ public:
     // Get statistics
     size_t getVoxelCount() const;
     float getGridMemoryMB() const;
+    std::unordered_map<uint16_t, size_t> getLabelHistogram() const;
+    std::vector<Voxel> getTopVoxelsByConfidence(size_t limit) const;
+    size_t pruneStaleVoxels(uint64_t max_age_ns, float min_confidence = 0.1f);
     
     // Enable/disable dynamic object removal
     void setDynamicRemoval(bool enable, float threshold = 0.3f);
@@ -89,6 +96,8 @@ public:
         const std::vector<Eigen::Vector3f>& new_points,
         float change_threshold
     );
+
+    Eigen::Vector3f voxelToWorld(const Voxel& v) const;
 
 private:
     VoxelGridConfig config_;
@@ -100,10 +109,8 @@ private:
     
     // World to grid coordinate conversion
     Voxel worldToVoxel(const Eigen::Vector3f& point) const;
-    Eigen::Vector3f voxelToWorld(const Voxel& v) const;
-    
-    // Check if point is within valid range
     bool isValidPoint(const Eigen::Vector3f& point) const;
+    bool isWithinGridBounds(const Voxel& voxel) const;
     
     // Update existing voxel with new data
     void updateVoxel(Voxel& voxel, float depth, uint16_t label, float confidence);
