@@ -2,6 +2,11 @@
 
 VoxelNav turns 3D sensor data into a voxel grid and can attach semantic labels to those voxels. The point of this repo is now simple: show the real working core, clearly mark the unfinished parts, and give you a test you can run right away.
 
+## Read this first
+This is a **strong prototype**. It is **not yet field deployed**.
+
+You can use it to demonstrate voxel mapping, semantic labeling, ranking, pruning, and Nav2 integration scaffolding. You should **not** claim it is production-proven on a real robot until the deployment checklist in `docs/DEPLOYMENT.md` is actually completed.
+
 ## What is real today
 - Voxel hashing and merging from 3D points
 - Signed voxel coordinates in all 3 axes

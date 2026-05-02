@@ -1,39 +1,22 @@
 # VoxelNav marketing sheet
 
 ## One-liner
-VoxelNav is a ROS2 semantic voxel mapping stack with signed-space hashing, deterministic semantic fallback, and a tested core designed for Nav2 integration.
+VoxelNav is a ROS2 semantic voxel mapping stack with signed 3D space, semantic labeling, pruning, ranking, and Nav2-ready outputs.
 
-## Short pitch
-It takes raw 3D sensor data, turns it into structured voxels, assigns semantics, and exposes the result in a form navigation software can actually use.
+## What to say publicly
+- **Advanced 3D voxel intelligence for robots**
+- **ROS2-native semantic mapping pipeline**
+- **Navigation-oriented voxel grid with confidence scoring**
+- **Deterministic fallback mode for reliable demos**
+- **Tested core with smoke verification**
 
-## What makes it feel advanced
-- Signed 3D voxel space, not just a toy first-quadrant grid
-- Semantic labels plus confidence scores
-- Deterministic fallback when the real model is missing
-- Helper functions for ranking, pruning, and summarizing voxels
-- A smoke test that proves the core paths work
-- Nav2 plugin scaffold for navigation use
+## What not to overclaim
+Do not say it is field deployed, production proven, or fully ONNX-powered unless those things are actually validated on target hardware.
 
-## Honest marketing language
-Use these phrases:
-- "tested semantic voxel mapping core"
-- "signed-space voxel hashing"
-- "deterministic segmentation fallback"
-- "Nav2-oriented voxel intelligence"
-- "navigation-ready voxel pipeline"
+## Strong but honest positioning
+The best current positioning is:
+> A highly capable ROS2 prototype that already does the core mapping job and is ready for serious robot validation.
 
-Avoid these phrases unless a real benchmark or robot demo proves them:
-- "production ready"
-- "fully autonomous"
-- "sub-100ms" unless measured on target hardware
-- "fully trained model pipeline" unless the ONNX model is actually shipped and validated
-
-## Demo story
-1. Show live sensor input.
-2. Show the voxel map filling in.
-3. Show labels and confidence values.
-4. Show the smoke test passing.
-5. Show that the map can be summarized, ranked, and pruned.
-
-## Best description for the README
-"VoxelNav turns 3D sensor data into a signed semantic voxel grid with deterministic fallback behavior and Nav2-facing outputs."
+## Audience translation
+- For engineers: it hashes 3D points into signed voxels, tracks labels/confidence, and can feed Nav2.
+- For non-engineers: it turns robot sensor noise into a smarter map.

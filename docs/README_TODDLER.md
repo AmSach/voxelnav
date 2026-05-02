@@ -2,6 +2,8 @@
 
 VoxelNav is a robot helper that turns messy sensor dots into tidy little cubes called voxels.
 
+It is still learning, so it is a **practice robot brain**, not a finished robot brain.
+
 ## What it tries to do
 - See the world from a robot's eyes
 - Put the world into cubes
