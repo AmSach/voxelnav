@@ -23,8 +23,15 @@ find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 set(ONNXRUNTIME_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/onnxruntime/pkg/onnxruntime-linux-x64-1.25.1)
+set(ONNXRUNTIME_LIB_DIR ${ONNXRUNTIME_ROOT}/lib)
 include_directories(${ONNXRUNTIME_ROOT}/include)
-link_directories(${ONNXRUNTIME_ROOT}/lib)
+link_directories(${ONNXRUNTIME_LIB_DIR})
+
+set(CMAKE_BUILD_RPATH ${ONNXRUNTIME_LIB_DIR})
+set(CMAKE_INSTALL_RPATH "$ORIGIN/..")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--disable-new-dtags")
 
 include_directories(
   include
@@ -98,6 +105,12 @@ install(TARGETS
   voxelnav_segmenter
   voxelnav_costmap_plugin
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(FILES
+  ${ONNXRUNTIME_LIB_DIR}/libonnxruntime.so.1
+  ${ONNXRUNTIME_LIB_DIR}/libonnxruntime.so.1.25.1
+  DESTINATION lib
 )
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/models")

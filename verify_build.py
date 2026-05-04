@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -10,9 +11,9 @@ BUILD_DIR = ROOT / "build"
 SMOKE_BIN = BUILD_DIR / "voxelnav_core_smoke"
 
 
-def run(cmd: list[str]) -> None:
+def run(cmd: list[str], env: dict[str, str] | None = None) -> None:
     print("$ " + " ".join(cmd))
-    subprocess.run(cmd, cwd=ROOT, check=True)
+    subprocess.run(cmd, cwd=ROOT, check=True, env=env)
 
 
 def main() -> int:
@@ -41,9 +42,14 @@ def main() -> int:
         "-L" + ort_lib,
         "-lonnxruntime",
         "-Wl,-rpath," + ort_lib,
+        "-Wl,--disable-new-dtags",
     ]
     run(cmd)
-    run([str(SMOKE_BIN)])
+
+    smoke_env = os.environ.copy()
+    ld_library_path = smoke_env.get("LD_LIBRARY_PATH")
+    smoke_env["LD_LIBRARY_PATH"] = ort_lib if not ld_library_path else ort_lib + ":" + ld_library_path
+    run([str(SMOKE_BIN)], env=smoke_env)
 
     print()
     print(f"Build verification succeeded: {SMOKE_BIN}")
