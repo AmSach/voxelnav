@@ -27,12 +27,6 @@ set(ONNXRUNTIME_LIB_DIR ${ONNXRUNTIME_ROOT}/lib)
 include_directories(${ONNXRUNTIME_ROOT}/include)
 link_directories(${ONNXRUNTIME_LIB_DIR})
 
-set(CMAKE_BUILD_RPATH ${ONNXRUNTIME_LIB_DIR})
-set(CMAKE_INSTALL_RPATH "$ORIGIN/..")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--disable-new-dtags")
-
 include_directories(
   include
   ${OpenCV_INCLUDE_DIRS}
@@ -43,19 +37,26 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-# Voxelizer library
+function(configure_onnxruntime_linking target_name)
+  set_target_properties(${target_name} PROPERTIES
+    BUILD_RPATH "${ONNXRUNTIME_LIB_DIR};$ORIGIN"
+    INSTALL_RPATH "$ORIGIN;$ORIGIN/.."
+    INSTALL_RPATH_USE_LINK_PATH FALSE
+    LINK_FLAGS "-Wl,--disable-new-dtags"
+  )
+endfunction()
+
 add_library(voxelnav_voxelizer SHARED
   src/voxelizer.cpp
 )
 ament_target_dependencies(voxelnav_voxelizer
   rclcpp sensor_msgs Eigen3
 )
-
 target_link_libraries(voxelnav_voxelizer
   ${PCL_LIBRARIES}
 )
+configure_onnxruntime_linking(voxelnav_voxelizer)
 
-# Segmenter library (ONNX inference)
 add_library(voxelnav_segmenter SHARED
   src/segmenter.cpp
 )
@@ -66,8 +67,8 @@ target_link_libraries(voxelnav_segmenter
 ament_target_dependencies(voxelnav_segmenter
   rclcpp sensor_msgs OpenCV
 )
+configure_onnxruntime_linking(voxelnav_segmenter)
 
-# Main ROS2 node
 add_executable(voxelnav_node
   src/voxelnav_node.cpp
 )
@@ -80,14 +81,15 @@ target_link_libraries(voxelnav_node
 ament_target_dependencies(voxelnav_node
   rclcpp rclcpp_components sensor_msgs geometry_msgs message_filters cv_bridge pcl_conversions
 )
+configure_onnxruntime_linking(voxelnav_node)
 
-# Nav2 costmap plugin
 add_library(voxelnav_costmap_plugin SHARED
   src/costmap_plugin.cpp
 )
 ament_target_dependencies(voxelnav_costmap_plugin
   rclcpp nav2_costmap_2d pluginlib
 )
+configure_onnxruntime_linking(voxelnav_costmap_plugin)
 pluginlib_export_plugin_description_file(nav2_costmap_2d costmap_plugins.xml)
 
 if(BUILD_TESTING)
@@ -108,8 +110,10 @@ install(TARGETS
 )
 
 install(FILES
+  ${ONNXRUNTIME_LIB_DIR}/libonnxruntime.so
   ${ONNXRUNTIME_LIB_DIR}/libonnxruntime.so.1
   ${ONNXRUNTIME_LIB_DIR}/libonnxruntime.so.1.25.1
+  ${ONNXRUNTIME_LIB_DIR}/libonnxruntime_providers_shared.so
   DESTINATION lib
 )
 

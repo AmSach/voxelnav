@@ -34,6 +34,10 @@ public:
         declare_parameter("publish_rate", 10.0);
         declare_parameter("frame_id", "map");
         declare_parameter("model_path", "models/segformer-b0-finetuned-ade-512-512/onnx/model_fp16.onnx");
+        declare_parameter("cloud_topic", "/camera/camera/depth/color/points");
+        declare_parameter("rgb_topic", "/camera/camera/color/image_raw");
+        declare_parameter("depth_topic", "/camera/camera/depth/image_rect_raw");
+        declare_parameter("camera_info_topic", "/camera/camera/color/camera_info");
 
         voxel_size_ = get_parameter("voxel_size").as_double();
         max_range_ = get_parameter("max_range").as_double();
@@ -41,6 +45,15 @@ public:
         double publish_rate = get_parameter("publish_rate").as_double();
         frame_id_ = get_parameter("frame_id").as_string();
         model_path_ = get_parameter("model_path").as_string();
+        cloud_topic_ = get_parameter("cloud_topic").as_string();
+        rgb_topic_ = get_parameter("rgb_topic").as_string();
+        depth_topic_ = get_parameter("depth_topic").as_string();
+        camera_info_topic_ = get_parameter("camera_info_topic").as_string();
+
+        if (cloud_topic_.empty()) cloud_topic_ = "/camera/camera/depth/color/points";
+        if (rgb_topic_.empty()) rgb_topic_ = "/camera/camera/color/image_raw";
+        if (depth_topic_.empty()) depth_topic_ = "/camera/camera/depth/image_rect_raw";
+        if (camera_info_topic_.empty()) camera_info_topic_ = "/camera/camera/color/camera_info";
 
         voxelizer_ = std::make_unique<Voxelizer>(createVoxelizerConfig());
         segmenter_ = std::make_unique<Segmenter>(createSegmenterConfig());
@@ -61,12 +74,12 @@ public:
             segmenter_->getConfig().input_width, segmenter_->getConfig().input_height, segmenter_->getConfig().num_classes);
 
         cloud_sub_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-            "/scan", rclcpp::SensorDataQoS(),
+            cloud_topic_, rclcpp::SensorDataQoS(),
             std::bind(&VoxelNavNode::cloudCallback, this, std::placeholders::_1));
 
-        rgb_sub_.subscribe(this, "/camera/color/image_raw");
-        depth_sub_.subscribe(this, "/camera/depth/image_rect_raw");
-        camera_info_sub_.subscribe(this, "/camera/color/camera_info");
+        rgb_sub_.subscribe(this, rgb_topic_);
+        depth_sub_.subscribe(this, depth_topic_);
+        camera_info_sub_.subscribe(this, camera_info_topic_);
 
         sync_ = std::make_shared<message_filters::TimeSynchronizer<
             sensor_msgs::msg::Image,
@@ -247,6 +260,10 @@ private:
     bool enable_semantic_ = true;
     std::string frame_id_ = "map";
     std::string model_path_;
+    std::string cloud_topic_;
+    std::string rgb_topic_;
+    std::string depth_topic_;
+    std::string camera_info_topic_;
 
     std::unique_ptr<Voxelizer> voxelizer_;
     std::unique_ptr<Segmenter> segmenter_;
