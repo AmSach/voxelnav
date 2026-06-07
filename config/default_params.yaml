@@ -1,0 +1,23 @@
+# VoxelNav Configuration
+
+# Voxelizer parameters
+voxel_size: 0.05          # meters per voxel
+max_range: 10.0           # maximum sensor range (meters)
+min_points_per_voxel: 3   # minimum points to create voxel
+
+# Segmentation parameters
+enable_semantic: true     # enable/disable semantic labeling
+model_path: "models/mobilenet_v3_small.onnx"
+confidence_threshold: 0.5  # minimum confidence for labels
+
+# Dynamic object filtering
+enable_dynamic_removal: true
+dynamic_threshold: 0.3    # change ratio for dynamic detection
+
+# Publishing
+publish_rate: 10.0        # Hz
+frame_id: "map"
+
+# Costmap plugin parameters
+obstacle_threshold: 0.5
+filter_labels: [1]        # labels to ignore (1=floor by default)
