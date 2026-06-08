@@ -1,0 +1,7 @@
+<library path="voxelnav_costmap_plugin">
+  <class name="voxelnav/VoxelCostmapPlugin" type="voxelnav::VoxelCostmapPlugin" base_class_type="nav2_costmap_2d::Layer">
+    <description>
+      VoxelNav costmap layer for semantic voxel-based obstacle detection
+    </description>
+  </class>
+</library>
